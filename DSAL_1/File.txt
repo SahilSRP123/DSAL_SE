@@ -1,0 +1,247 @@
+#include <iostream>
+#include <fstream>
+using namespace std;
+
+class Student {
+public:
+    int rollno;
+    char name[50];
+
+    void getdata() {
+        cout << "\nEnter rollno and name of student: ";
+        cin >> rollno >> name;
+    }
+
+    void putdata() {
+        cout << "\n" << rollno << " " << name;
+    }
+};
+
+class Database {
+private:
+    char fname[30];
+
+public:
+    Database() {
+        cout << "\nEnter name of file to be opened: ";
+        cin >> fname;
+    }
+
+    void changefile();
+    void create();
+    void display();
+    void del(int);
+    void search(int);
+    void modify(int);
+    void menu();
+};
+
+void Database::changefile() {
+    ifstream fin;
+    Student s;
+    int ans;
+    fin.open(fname);
+    if (fin) {
+        cout << "\nFile Exists";
+        cout << "\nContents of File";
+        while (fin.read((char*)&s, sizeof(s))) {
+            s.putdata();
+        }
+        cout << "\nWould you like to 1.add records or 2.overwrite them or 3.change file 4.Continue: ";
+        cin >> ans;
+        switch (ans) {
+        case 1:
+            create();
+            break;
+        case 2:
+            create();
+            break;
+        case 3:
+            cout << "\nEnter new file name: ";
+            cin >> fname;
+            break;
+        case 4:
+            break;
+        }
+    } else {
+        cout << "\nFile Does Not Exist";
+        create();
+    }
+    fin.close();
+}
+
+void Database::create() {
+    ofstream fout;
+    Student s;
+    fout.open(fname);
+    if (fout.fail()) {
+        cout << "\nError Opening File";
+    } else {
+        int n;
+        cout << "\nEnter number of records: ";
+        cin >> n;
+        for (int i = 0; i < n; i++) {
+            s.getdata();
+            fout.write((char*)&s, sizeof(s));
+        }
+    }
+    fout.close();
+}
+
+void Database::display() {
+    ifstream fin;
+    Student s;
+    fin.open(fname);
+    if (fin.fail()) {
+        cout << "\nError Opening File";
+    } else {
+        while (fin.read((char*)&s, sizeof(s))) {
+            s.putdata();
+        }
+    }
+    fin.close();
+}
+
+void Database::del(int a) {
+    int flag = 0;
+    fstream finout;
+    Student s;
+    finout.open(fname, ios::in | ios::out | ios::binary);
+    if (finout.fail()) {
+        cout << "\nError Opening File";
+    } else {
+        fstream temp;
+        temp.open("temp", ios::out | ios::binary);
+        if (temp.fail()) {
+            cout << "\nError Opening Temporary File";
+            finout.close();
+            return;
+        }
+
+        while (finout.read((char*)&s, sizeof(s))) {
+            if (a != s.rollno) {
+                temp.write((char*)&s, sizeof(s));
+            } else {
+                flag = 1;
+            }
+        }
+
+        finout.close();
+        temp.close();
+
+        if (flag == 1) {
+            remove(fname);
+            rename("temp", fname);
+            cout << "\nRecord Deleted";
+        } else {
+            cout << "\nRecord Not Found";
+        }
+    }
+}
+
+void Database::search(int a) {
+    int flag = 0;
+    ifstream fin;
+    Student s;
+    fin.open(fname);
+    if (fin.fail()) {
+        cout << "\nError Opening File";
+    } else {
+        while (fin.read((char*)&s, sizeof(s))) {
+            if (a == s.rollno) {
+                flag = 1;
+                break;
+            }
+        }
+        if (flag == 1)
+            s.putdata();
+        else
+            cout << "\nRecord Not Found";
+    }
+    fin.close();
+}
+
+void Database::modify(int r) {
+    int flag = 0, ch, pos = 0;
+    fstream finout;
+    Student s;
+    finout.open(fname, ios::in | ios::out | ios::binary);
+    if (finout.fail()) {
+        cout << "\nError Opening File";
+    } else {
+        while (finout.read((char*)&s, sizeof(s))) {
+            if (r == s.rollno) {
+                flag = 1;
+                break;
+            } else {
+                pos++;
+            }
+        }
+        if (flag == 1) {
+            cout << "\nEnter what is to be modified: 1.Rollno 2.Name: ";
+            cin >> ch;
+            switch (ch) {
+            case 1:
+                cout << "\nEnter new rollno: ";
+                cin >> s.rollno;
+                finout.seekp(pos * sizeof(s), ios::beg);
+                finout.write((char*)&s, sizeof(s));
+                break;
+            case 2:
+                cout << "\nEnter new name: ";
+                cin >> s.name;
+                finout.seekp(pos * sizeof(s), ios::beg);
+                finout.write((char*)&s, sizeof(s));
+                break;
+            }
+        } else {
+            cout << "\nRecord Not Found";
+        }
+    }
+    finout.close();
+}
+
+void Database::menu() {
+    int ch, r;
+    do {
+        cout << "\nEnter your choice:";
+        cout << "\n1. Insert";
+        cout << "\n2. Display";
+        cout << "\n3. Delete";
+        cout << "\n4. Search";
+        cout << "\n5. Update";
+        cout << "\n6. Exit";
+        cout << "\nChoice: ";
+        cin >> ch;
+
+        switch (ch) {
+        case 1:
+            create();
+            break;
+        case 2:
+            display();
+            break;
+        case 3:
+            cout << "\nEnter rollnumber to be deleted: ";
+            cin >> r;
+            del(r);
+            break;
+        case 4:
+            cout << "\nEnter rollnumber to be searched: ";
+            cin >> r;
+            search(r);
+            break;
+        case 5:
+            cout << "\nEnter rollnumber to be modified: ";
+            cin >> r;
+            modify(r);
+            break;
+        }
+    } while (ch != 6);
+}
+
+int main() {
+    Database obj;
+    obj.menu();
+    return 0;
+}

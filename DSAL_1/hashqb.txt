@@ -1,0 +1,133 @@
+#Taking size number of hashing table as input from user
+m = int(input("Enter the size of Hashing Table: "))
+
+#Creating empty list which will store all hash values
+ht = []
+
+#Initializing all has values to -1
+for i in range(m):
+    ht.append(-1)
+
+#Printing Initial Hash Table
+print(ht)
+print("-------------------------------------------------------------------------------------------")
+    
+#while loop for accepting key values from the user, till user wants to
+ans = 1
+while(ans==1):
+    #Take input key value from user
+    key = int(input("Enter the key to be inserted: "))
+    
+    #Calculating hash value
+    i = key%m
+    ip = i
+    
+    #If there is vacant position in Hash Table, key will be inserted there
+    if(ht[ip]==-1):
+        ht[ip]=key
+        
+    #If there is case of collision, then apply concept of Quadratic Probing
+    else:
+        flag = 0
+        step = 1
+        while(ht[ip]!=-1):
+            ip = (i+step * step)%m
+            step=step+1 
+            if(ip==i):
+                print("Insertion Failure!")
+                flag=1
+                break
+        if(flag==0):
+            ht[ip]=key
+        
+    #Printing the newly updated Hash Table
+    print(ht)
+    print("-------------------------------------------------------------------------------------------")
+        
+    #Checking if user wants to add one more key
+    ans = int(input("Do you want to add one more Key? (1/0): "))
+
+ch = 1
+while(ch==1):
+    skey = int(input("Enter the key to be searched: "))
+    count = 0
+    j = skey%m
+    tj = j
+    sflag=0
+    if(ht[j]==skey):
+        count=count+1
+        sflag=1
+        
+    #If there is case of collision, then apply concept of Quadratic Probing
+    else:
+        count = 1
+        sstep = 1
+        while(ht[j]!=skey):
+            count=count+1
+            j = (j+sstep * sstep)%m
+            sstep=sstep+1 
+            if(ht[j]==skey):
+                sflag=1
+            if(tj==j):
+                break
+    if(sflag == 1):
+        print("Key found in hash table after ",count," comparisons!")
+    if(sflag == 0):
+        print("Key not found")
+    ch = int(input("Do you want to search one more key?(1/0)"))
+print("Ending the Program!!\n______________________________________________________________")
+
+OUTPUT:
+Enter the size of Hashing Table: 10
+[-1, -1, -1, -1, -1, -1, -1, -1, -1, -1]
+-------------------------------------------------------------------------------------------
+Enter the key to be inserted: 14
+[-1, -1, -1, -1, 14, -1, -1, -1, -1, -1]
+-------------------------------------------------------------------------------------------
+Do you want to add one more Key? (1/0): 1
+Enter the key to be inserted: 51
+[-1, 51, -1, -1, 14, -1, -1, -1, -1, -1]
+-------------------------------------------------------------------------------------------
+Do you want to add one more Key? (1/0): 1
+Enter the key to be inserted: 74
+[-1, 51, -1, -1, 14, 74, -1, -1, -1, -1]
+-------------------------------------------------------------------------------------------
+Do you want to add one more Key? (1/0): 1
+Enter the key to be inserted: 70
+[70, 51, -1, -1, 14, 74, -1, -1, -1, -1]
+-------------------------------------------------------------------------------------------
+Do you want to add one more Key? (1/0): 1
+Enter the key to be inserted: 12
+[70, 51, 12, -1, 14, 74, -1, -1, -1, -1]
+-------------------------------------------------------------------------------------------
+Do you want to add one more Key? (1/0): 1
+Enter the key to be inserted: 49
+[70, 51, 12, -1, 14, 74, -1, -1, -1, 49]
+-------------------------------------------------------------------------------------------
+Do you want to add one more Key? (1/0): 1
+Enter the key to be inserted: 5
+[70, 51, 12, -1, 14, 74, 5, -1, -1, 49]
+-------------------------------------------------------------------------------------------
+Do you want to add one more Key? (1/0): 1
+Enter the key to be inserted: 69
+[70, 51, 12, 69, 14, 74, 5, -1, -1, 49]
+-------------------------------------------------------------------------------------------
+Do you want to add one more Key? (1/0): 1
+Enter the key to be inserted: 36
+[70, 51, 12, 69, 14, 74, 5, 36, -1, 49]
+-------------------------------------------------------------------------------------------
+Do you want to add one more Key? (1/0): 0
+Enter the key to be searched: 69
+Key found in hash table after  4  comparisons!
+Do you want to search one more key?(1/0)1
+Enter the key to be searched: 74
+Key found in hash table after  2  comparisons!
+Do you want to search one more key?(1/0)1
+Enter the key to be searched: 66
+Key not found
+Do you want to search one more key?(1/0)1
+Enter the key to be searched: 36
+Key found in hash table after  2  comparisons!
+Do you want to search one more key?(1/0)0
+Ending the Program!!
+______________________________________________________________

@@ -1,0 +1,87 @@
+#include <iostream>
+#include <climits>
+using namespace std;
+
+// Function to print the solution matrix
+void printSolution(int** dist, int V);
+
+// Function to implement Floyd Warshall algorithm
+void floydWarshall(int** graph, int V) {
+    int** dist = new int*[V];
+    for (int i = 0; i < V; i++) {
+        dist[i] = new int[V];
+        for (int j = 0; j < V; j++) {
+            dist[i][j] = graph[i][j];
+        }
+    }
+
+    // Find the shortest path between every pair of vertices
+    for (int k = 0; k < V; k++) {
+        for (int i = 0; i < V; i++) {
+            for (int j = 0; j < V; j++) {
+                if (dist[i][k] != INT_MAX && dist[k][j] != INT_MAX &&
+                    dist[i][k] + dist[k][j] < dist[i][j]) {
+                    dist[i][j] = dist[i][k] + dist[k][j];
+                }
+            }
+        }
+    }
+
+    // Print the shortest path matrix
+    printSolution(dist, V);
+
+    // Clean up memory
+    for (int i = 0; i < V; i++) {
+        delete[] dist[i];
+    }
+    delete[] dist;
+}
+
+// Function to print the solution matrix
+void printSolution(int** dist, int V) {
+    cout << "Shortest distances between every pair of vertices:\n";
+    for (int i = 0; i < V; i++) {
+        for (int j = 0; j < V; j++) {
+            if (dist[i][j] == INT_MAX) {
+                cout << "INF ";
+            } else {
+                cout << dist[i][j] << " ";
+            }
+        }
+        cout << endl;
+    }
+}
+
+int main() {
+    int V;
+    cout << "Enter the number of vertices: ";
+    cin >> V;
+
+    // Create a 2D array for the graph
+    int** graph = new int*[V];
+    for (int i = 0; i < V; i++) {
+        graph[i] = new int[V];
+        for (int j = 0; j < V; j++) {
+            if (i == j) {
+                graph[i][j] = 0;
+            } else {
+                cout << "Enter the weight of edge between vertex " << i << " and " << j << " (or -1 if there is no edge): ";
+                cin >> graph[i][j];
+                if (graph[i][j] == -1) {
+                    graph[i][j] = INT_MAX;
+                }
+            }
+        }
+    }
+
+    // Find the shortest path between every pair of vertices
+    floydWarshall(graph, V);
+
+    // Clean up memory
+    for (int i = 0; i < V; i++) {
+        delete[] graph[i];
+    }
+    delete[] graph;
+
+    return 0;
+}

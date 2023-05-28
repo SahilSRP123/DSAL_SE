@@ -1,0 +1,273 @@
+#include <iostream>
+#include <string>
+using namespace std;
+
+// Structure to represent a node in the AVL tree
+struct Node {
+    string keyword;
+    string meaning;
+    int height;
+    Node* left;
+    Node* right;
+};
+
+// Function to get the height of a node
+int getHeight(Node* node) {
+    if (node == nullptr)
+        return 0;
+    return node->height;
+}
+
+// Function to get the balance factor of a node
+int getBalanceFactor(Node* node) {
+    if (node == nullptr)
+        return 0;
+    return getHeight(node->left) - getHeight(node->right);
+}
+
+// Function to update the height of a node
+void updateHeight(Node* node) {
+    if (node == nullptr)
+        return;
+    node->height = max(getHeight(node->left), getHeight(node->right)) + 1;
+}
+
+// Function to perform a right rotation on a node
+Node* rightRotate(Node* node) {
+    Node* newRoot = node->left;
+    node->left = newRoot->right;
+    newRoot->right = node;
+    updateHeight(node);
+    updateHeight(newRoot);
+    return newRoot;
+}
+
+// Function to perform a left rotation on a node
+Node* leftRotate(Node* node) {
+    Node* newRoot = node->right;
+    node->right = newRoot->left;
+    newRoot->left = node;
+    updateHeight(node);
+    updateHeight(newRoot);
+    return newRoot;
+}
+
+// Function to balance the AVL tree after insertion or deletion
+Node* balance(Node* node) {
+    if (node == nullptr)
+        return nullptr;
+
+    updateHeight(node);
+
+    int balanceFactor = getBalanceFactor(node);
+
+    // Left Left Case
+    if (balanceFactor > 1 && getBalanceFactor(node->left) >= 0)
+        return rightRotate(node);
+
+    // Right Right Case
+    if (balanceFactor < -1 && getBalanceFactor(node->right) <= 0)
+        return leftRotate(node);
+
+    // Left Right Case
+    if (balanceFactor > 1 && getBalanceFactor(node->left) < 0) {
+        node->left = leftRotate(node->left);
+        return rightRotate(node);
+    }
+
+    // Right Left Case
+    if (balanceFactor < -1 && getBalanceFactor(node->right) > 0) {
+        node->right = rightRotate(node->right);
+        return leftRotate(node);
+    }
+
+    return node;
+}
+
+// Function to insert a keyword and its meaning into the AVL tree
+Node* insert(Node* root, const string& keyword, const string& meaning) {
+    if (root == nullptr) {
+        Node* newNode = new Node;
+        newNode->keyword = keyword;
+        newNode->meaning = meaning;
+        newNode->height = 1;
+        newNode->left = nullptr;
+        newNode->right = nullptr;
+        return newNode;
+    }
+
+    if (keyword < root->keyword)
+        root->left = insert(root->left, keyword, meaning);
+    else if (keyword > root->keyword)
+        root->right = insert(root->right, keyword, meaning);
+    else
+        root->meaning = meaning;
+
+    return balance(root);
+}
+
+// Function to find the node with minimum keyword value (leftmost node)
+Node* findMinNode(Node* node) {
+    if (node == nullptr)
+        return nullptr;
+    while (node->left != nullptr)
+        node = node->left;
+    return node;
+}
+
+// Function to delete a keyword from the AVL tree
+Node* remove(Node* root, const string& keyword) {
+    if (root == nullptr)
+        return nullptr;
+
+    if (keyword < root->keyword)
+        root->left = remove(root->left, keyword);
+    else if (keyword > root->keyword)
+        root->right = remove(root->right, keyword);
+    else {
+        // Node to be deleted found
+
+        // Node with only one child or no child
+        if (root->left == nullptr || root->right == nullptr) {
+            Node* temp = root->left ? root->left : root->right;
+            if (temp == nullptr) {
+                // No child case
+                temp = root;
+                root = nullptr;
+            } else {
+                // One child case
+                *root = *temp;
+            }
+            delete temp;
+        } else {
+            // Node with two children
+            Node* minNode = findMinNode(root->right);
+            root->keyword = minNode->keyword;
+            root->meaning = minNode->meaning;
+            root->right = remove(root->right, minNode->keyword);
+        }
+    }
+
+    return balance(root);
+}
+
+// Function to update the meaning of a keyword
+Node* update(Node* root, const string& keyword, const string& newMeaning) {
+    if (root == nullptr)
+        return nullptr;
+
+    if (keyword < root->keyword)
+        root->left = update(root->left, keyword, newMeaning);
+    else if (keyword > root->keyword)
+        root->right = update(root->right, keyword, newMeaning);
+    else
+        root->meaning = newMeaning;
+
+    return root;
+}
+
+// Function to display the AVL tree in ascending order
+void displayAscending(Node* root) {
+    if (root == nullptr)
+        return;
+
+    displayAscending(root->left);
+    cout << root->keyword << ": " << root->meaning << endl;
+    displayAscending(root->right);
+}
+
+// Function to display the AVL tree in descending order
+void displayDescending(Node* root) {
+    if (root == nullptr)
+        return;
+
+    displayDescending(root->right);
+    cout << root->keyword << ": " << root->meaning << endl;
+    displayDescending(root->left);
+}
+
+// Function to find the maximum number of comparisons required to find a keyword
+int findMaxComparisons(Node* root, const string& keyword, int comparisons = 0) {
+    if (root == nullptr || root->keyword == keyword)
+        return comparisons;
+
+    if (keyword < root->keyword)
+        return findMaxComparisons(root->left, keyword, comparisons + 1);
+    else
+        return findMaxComparisons(root->right, keyword, comparisons + 1);
+}
+
+int main() {
+    Node* root = nullptr;
+
+    while (true) {
+        cout << "\nDictionary Menu:\n";
+        cout << "1. Add a new keyword\n";
+        cout << "2. Delete a keyword\n";
+        cout << "3. Update the meaning of a keyword\n";
+        cout << "4. Display data in ascending order\n";
+        cout << "5. Display data in descending order\n";
+        cout << "6. Find the maximum comparisons for a keyword\n";
+        cout << "7. Exit\n";
+        cout << "Enter your choice: ";
+
+        int choice;
+        cin >> choice;
+
+        switch (choice) {
+            case 1: {
+                string keyword, meaning;
+                cout << "\nEnter the keyword: ";
+                cin >> keyword;
+                cout << "Enter its meaning: ";
+                cin >> meaning;
+                root = insert(root, keyword, meaning);
+                cout << "Keyword added successfully!\n";
+                break;
+            }
+            case 2: {
+                string keyword;
+                cout << "\nEnter the keyword to delete: ";
+                cin >> keyword;
+                root = remove(root, keyword);
+                cout << "Keyword deleted successfully!\n";
+                break;
+            }
+            case 3: {
+                string keyword, newMeaning;
+                cout << "\nEnter the keyword to update: ";
+                cin >> keyword;
+                cout << "Enter the new meaning: ";
+                cin >> newMeaning;
+                root = update(root, keyword, newMeaning);
+                cout << "Keyword updated successfully!\n";
+                break;
+            }
+            case 4: {
+                cout << "\nData in ascending order:\n";
+                displayAscending(root);
+                break;
+            }
+            case 5: {
+                cout << "\nData in descending order:\n";
+                displayDescending(root);
+                break;
+            }
+            case 6: {
+                string keyword;
+                cout << "\nEnter the keyword to find the maximum comparisons: ";
+                cin >> keyword;
+                int maxComparisons = findMaxComparisons(root, keyword);
+                cout << "Maximum comparisons required: " << maxComparisons << endl;
+                break;
+            }
+            case 7:
+                cout << "\nExiting...\n";
+                return 0;
+            default:
+                cout << "\nInvalid choice! Please try again.\n";
+        }
+    }
+
+    return 0;
+}

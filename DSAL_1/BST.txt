@@ -1,0 +1,269 @@
+#include <bits/stdc++.h>
+using namespace std;
+
+//Creating a Node Structure which contains 3 fields- data field, left child pointer field and right child pointer field
+class BST{
+    private:
+        struct node{
+            int data;
+            node *lc, *rc;
+        }*root;
+    
+    public:
+    
+    //Using constructor to Intialize root node to NULL
+    BST(){
+        root = NULL;
+    }
+    
+    //Declaring functions to be defined out of the class
+    void create();
+    int height(node *temp2);
+    void mini();
+    void swapn(node *temp1);
+    void mirror();
+    void search();
+    void display();
+    void ino(node *s);
+    void preo(node *s);
+    void poso(node *s);
+    void callheight();
+};
+
+//Function to create and insert values in thr given binary tree    
+void BST:: create(){
+    node *temp, *curr;
+    int flag;
+    do{
+        //Using dynamic memory allocation operator to allocate memory for new node
+        temp = new node;
+        temp->lc=NULL;
+        temp->rc=NULL;
+        cout<<"\nEnter Data: ";
+        cin>>temp->data;
+        
+        //Checking condition if newly created node is first node or Root Node exists
+        if(root==NULL)
+            root = temp;
+        else{
+            curr = root;
+            //Checking condition if BST i.e. lc<root<rc and inserting newly node according to value it holds
+            while(curr!=NULL){
+                if(temp->data < curr->data && curr->lc==NULL){
+                    curr->lc=temp;
+                    break;
+                }
+                else if(temp->data < curr->data){
+                    curr = curr->lc;
+                }
+                else if(temp->data > curr->data){
+                    if(curr->rc==NULL){
+                        curr->rc = temp;
+                        break;
+                    }
+                    else
+                        curr = curr->rc;
+                } 
+            }
+        }
+        cout<<"\n----------------------------------------------------";
+        cout<<"\nDo you want to insert node?(1/0) ";
+        cin>>flag;
+        cout<<"\n----------------------------------------------------\n";
+    }while(flag==1);
+}
+
+//Function to display Tree according to user's preferred method
+void BST::display(){
+    int choice;
+    cout<<"\nEnter type of method to Display- ";
+    cout<<"\n1.Pre-Order";
+    cout<<"\n2.In-Order";
+    cout<<"\n3.Post-Order";
+    cout<<"\n-------------------------------------";
+    cout<<"\nEnter your choice: ";
+    cin>>choice;
+    //Using Switch case to give options to user to choose method to display tree nodes
+    switch(choice){
+        case 1:
+            preo(root);
+            break;
+        case 2:
+            ino(root);
+            break;
+        case 3:
+            poso(root);
+            break;
+        default:
+            cout<<"\nInvalid option!";
+    }
+}
+
+void BST::preo(node *s){
+    if(s!=NULL){
+        cout<<s->data<<" ";
+        preo(s->lc);
+        preo(s->rc);
+    }
+}
+
+void BST::ino(node *s){
+    if(s!=NULL){
+        ino(s->lc);
+        cout<<s->data<<" ";
+        ino(s->rc);
+    }
+}
+
+void BST::poso(node *s){
+    if(s!=NULL){
+        poso(s->lc);
+        poso(s->rc);
+        cout<<s->data<<" ";
+    }
+}
+
+//Function to calculate lowest value in tree
+void BST::mini(){
+    node *temp;
+    temp = root;
+    while(temp->lc!=NULL){
+        temp=temp->lc;
+    }
+    cout<<"\nThe Smallest value in the tree is "<<temp->data;
+}
+
+//Function to search the given key in the binary by user as input
+void BST::search(){
+    int key;
+    //Declaring comp variable to store no of comparisions required for searching in case of successful search operation
+    int comp {1};
+    //Creating Flag variable to denote successful or unsuccessful search operation
+    int flag1 {0};
+    node *temp;
+    temp = root;
+    cout<<"\nEnter the element to be searched in Binary Tree: ";
+    cin>>key;
+    if(root==NULL){
+        cout<<"\nSorry! Binary Tree is empty.";
+    }
+    else{
+        while(temp!=NULL){
+            //Case- If the key matches with data field of temp Node
+            if(key==temp->data){
+                flag1=1;
+                break;
+            }
+            //Case- If the key < data field of temp node
+            else if(key<temp->data){
+                temp=temp->lc;
+                comp++;
+            }
+            else{
+                temp=temp->rc;
+                comp++;
+            }
+        }
+        if(flag1==0){
+            cout<<"\nSorry, the element entered doesn't exists in binary tree!";
+        }
+        else{
+            cout<<"\nKey found in Binary Tree after "<<comp<<" comparison(s)";
+        }
+    }
+}
+
+void BST::mirror(){
+    node *temp1;
+    temp1=root;
+    swapn(temp1);
+}
+
+
+//Function to swap left child and right child at every level of binary tree
+void BST:: swapn(node *temp1){
+    node *swap;
+    if (root == NULL)
+        cout<<"\nSorry, binary tree is empty!";
+    if(temp1->lc!=NULL)
+        swapn(temp1->lc);
+    if(temp1->rc!=NULL)
+        swapn(temp1->rc);
+    
+    //Swapping positions of both children
+    swap = temp1->lc;
+    temp1->lc = temp1->rc;
+    temp1->rc = swap;
+}
+
+//Function to find height of tree
+int BST::height(node *temp2){
+    int lDepth {};
+    int rDepth {};
+    if (temp2 == NULL){
+        return 0;
+    }
+    else{
+        /* compute the depth of each subtree */
+        lDepth = height(temp2->lc);
+        rDepth = height(temp2->rc);
+ 
+        /* use the larger one */
+        if (lDepth > rDepth)
+            return(lDepth + 1);
+        else
+            return(rDepth + 1);
+        }
+}
+
+void BST::callheight(){
+    cout<<"\nHeight of Binary Search Tree is "<<height(root);
+}
+
+int main(){
+    BST obj;
+    int ch;
+    //Creating Main Menu using do while loop and keep on execeuting operations on binary tree till the user chooses to Quit the Program
+    do{
+        cout<<"\n-----------------OPERATIONS ON BST---------------------";
+        cout<<"\n1.Insert Operation";
+        cout<<"\n2.Display Tree";
+        cout<<"\n3.Minimum value of tree";
+        cout<<"\n4.Height of Tree";
+        cout<<"\n5.Mirror of Tree";
+        cout<<"\n6.Search Value in Tree";
+        cout<<"\n7.Quit";
+        cout<<"\n--------------------------------------------------------";
+        cout<<"\nEnter your choice: ";
+        cin>>ch;
+        cout<<"\n________________________________________________________";
+        //Using Switch case and executing operations on binary tree according to the operation option chosen by user
+        switch(ch){
+            case 1:
+                obj.create();
+                break;
+            case 2:
+                obj.display();
+                break;
+            case 3:
+                obj.mini();
+                break;
+           case 4:
+                obj.callheight();
+                break;
+            case 5:
+                obj.mirror();
+                cout<<"\nTree Mirrored Successfully!";
+                break;
+            case 6:
+                obj.search();
+                break;
+            case 7:
+                cout<<"\nEnding the Program!!";
+                break;
+            default:
+                cout<<"\nInvalid option!";
+        }
+    }while(ch!=7);
+    return 0;
+}

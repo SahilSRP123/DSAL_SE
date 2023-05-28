@@ -1,0 +1,96 @@
+# Taking size number of hashing table as input from user
+m = int(input("Enter the size of Hashing Table: "))
+
+# Creating empty list which will store all hash values
+ht = []
+
+# Initializing all has values to -1
+for i in range(m):
+    ht.append(-1)
+
+#Printing Initial Hash Table
+print(ht)
+print("-------------------------------------------------------------------------------------------")
+    
+#To count no of elements in hash table
+cnt = 0
+#while loop for accepting key values from the user, till user wants to
+ans = 1
+while(ans==1):
+    #Take input key value from user
+    key = int(input("Enter the key to be inserted: "))
+    cnt = cnt+1
+    #Calculating hash value
+    i = key%m
+    
+    #If there is vacant position in Hash Table, key will be inserted there
+    if(ht[i]==-1):
+        ht[i]=key
+        
+    #If there is case of collision, then apply concept of Linear Probing
+    else:
+        while(ht[i]!=-1):
+            i = (i+1)%m
+        ht[i]=key
+        
+    #Printing the newly updated Hash Table
+    print(ht)
+    print("-------------------------------------------------------------------------------------------")
+        
+    #Checking if user wants to add one more key
+    ans = int(input("Do you want to add one more Key? (1/0): "))
+    
+ch = 1;
+while(ch==1):
+    skey = int(input("Enter the key to be searched: "))
+    j = skey%m
+    tj = j
+    count = 0
+    flag = 0
+    if(ht[j]==skey):
+        count = count+1
+        flag = 1
+    else:
+        count = 1
+        while(ht[j]!=skey):
+            j = (j+1)%m
+            count = count+1
+            if(ht[j]==skey):
+                flag = 1
+            if(tj==j):
+                break
+    if(flag == 1):
+        print("Key found in hash table after ",count," comparisons!")
+    if(flag == 0):
+        print("Key not found")
+        
+    ch = int(input("Do you want to search one more key?(1/0)"))
+
+
+OUTPUT:
+Enter the size of Hashing Table: 5
+[-1, -1, -1, -1, -1]
+-------------------------------------------------------------------------------------------
+Enter the key to be inserted: 14
+[-1, -1, -1, -1, 14]
+-------------------------------------------------------------------------------------------
+Do you want to add one more Key? (1/0): 1
+Enter the key to be inserted: 69
+[69, -1, -1, -1, 14]
+-------------------------------------------------------------------------------------------
+Do you want to add one more Key? (1/0): 1
+5Enter the key to be inserted: 51
+[69, 51, -1, -1, 14]
+-------------------------------------------------------------------------------------------
+Do you want to add one more Key? (1/0): 1
+Enter the key to be inserted: 49
+[69, 51, 49, -1, 14]
+-------------------------------------------------------------------------------------------
+Do you want to add one more Key? (1/0): 1
+Enter the key to be inserted: 39
+[69, 51, 49, 39, 14]
+-------------------------------------------------------------------------------------------
+Do you want to add one more Key? (1/0): 0
+Enter the key to be searched: 39
+Key found in hash table after  4  comparisons!
+Do you want to search one more key?(1/0)0
