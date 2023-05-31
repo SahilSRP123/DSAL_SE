@@ -1,0 +1,228 @@
+#include <iostream>
+#include <fstream>
+#include <cstring>
+
+using namespace std;
+
+class Student {
+public:
+    int rollNumber;
+    char name[50];
+    char division;
+    char address[100];
+
+    void getData() {
+        cout << "Enter Name of Student: ";
+        cin >> name;
+        cout << "Enter Roll Number: ";
+        cin >> rollNumber;
+        cout << "Enter Division: ";
+        cin >> division;
+        cout << "Enter Address of the Student: ";
+        cin >> address;
+    }
+
+    void putData() {
+        cout << name << " " << rollNumber << " " << division << " " << address << endl;
+    }
+};
+
+class StudentDatabase {
+private:
+    char fileName[30];
+
+public:
+    StudentDatabase() {
+        cout << "Enter the name of the file to be opened: ";
+        cin >> fileName;
+    }
+
+    void displayDatabase() {
+        ifstream fileIn(fileName, ios::binary);
+        if (fileIn.fail()) {
+            cout << "Error Opening File!" << endl;
+        } else {
+            Student student;
+            while (fileIn.read((char*)&student, sizeof(student))) {
+                student.putData();
+            }
+            fileIn.close();
+        }
+    }
+
+    void addRecord() {
+        ofstream fileOut(fileName, ios::binary | ios::app);
+        if (fileOut.fail()) {
+            cout << "Error Opening File!" << endl;
+        } else {
+            Student student;
+            student.getData();
+            fileOut.write((char*)&student, sizeof(student));
+            fileOut.close();
+            cout << "Record Added Successfully" << endl;
+        }
+    }
+
+    int searchRecord(int rollNumber, char division) {
+        ifstream fileIn(fileName, ios::binary);
+        if (fileIn.fail()) {
+            cout << "Error Opening File!" << endl;
+            return 0;
+        } else {
+            Student student;
+            int recordFound = 0;
+            while (fileIn.read((char*)&student, sizeof(student))) {
+                if (rollNumber == student.rollNumber && division == student.division) {
+                    recordFound = 1;
+                    student.putData();
+                    break;
+                }
+            }
+            fileIn.close();
+            return recordFound;
+        }
+    }
+
+    void modifyRecord(int rollNumber, char division) {
+            int p {};
+        fstream fileInOut(fileName, ios::in | ios::out | ios::binary);
+        if (fileInOut.fail()) {
+            cout << "Error Opening File!" << endl;
+        } else {
+            Student student;
+            int recordFound = 0;
+            while (fileInOut.read((char*)&student, sizeof(student))) {
+                if (rollNumber == student.rollNumber && division==student.division) {
+                    recordFound = 1;
+                    break;
+                }
+                else
+                    p++;
+            }
+            if (recordFound == 1) {
+                cout << "Enter field to be updated:\n1. Roll Number\n2. Name\n3. Division\n4. Address\n";
+                int choice;
+                cin >> choice;
+                switch (choice) {
+                    case 1:
+                        cout << "Enter new Roll Number: ";
+                        cin >> student.rollNumber;
+                        fileInOut.seekp(p*sizeof(student), ios::beg);
+                        fileInOut.write((char*)&student, sizeof(student));
+                        break;
+                    case 2:
+                        cout << "Enter new Name: ";
+                        cin >> student.name;
+                        fileInOut.seekp(p*sizeof(student), ios::beg);
+                        fileInOut.write((char*)&student, sizeof(student));
+                        break;
+                    case 3:
+                        cout << "Enter new Division: ";
+                        cin >> student.division;
+                        fileInOut.seekp(p*sizeof(student), ios::beg);
+                        fileInOut.write((char*)&student, sizeof(student));
+                        break;
+                    case 4:
+                        cout << "Enter new Address: ";
+                        cin >> student.address;
+                        fileInOut.seekp(p*sizeof(student), ios::beg);
+                        fileInOut.write((char*)&student, sizeof(student));
+                        break;
+                }
+                
+                fileInOut.close();
+                cout << "Record Modified Successfully" << endl;
+            } 
+            else {
+                cout << "Record Not Found" << endl;
+            }
+        }
+    }
+
+    void deleteRecord(int rollNumber) {
+        fstream fileInOut(fileName, ios::in | ios::out | ios::binary);
+        if (fileInOut.fail()) {
+            cout << "Error Opening File!" << endl;
+        } else {
+            Student student;
+            int recordFound = 0;
+            fstream tempFile("temp", ios::out | ios::binary);
+            if (tempFile.fail()) {
+                cout << "Error Creating Temporary File!" << endl;
+            } else {
+                while (fileInOut.read((char*)&student, sizeof(student))) {
+                    if (rollNumber != student.rollNumber) {
+                        tempFile.write((char*)&student, sizeof(student));
+                    } else {
+                        recordFound = 1;
+                    }
+                }
+                fileInOut.close();
+                tempFile.close();
+                remove(fileName);
+                rename("temp", fileName);
+                if (recordFound == 1) {
+                    cout << "Record Deleted Successfully" << endl;
+                } else {
+                    cout << "Record Not Found" << endl;
+                }
+            }
+        }
+    }
+
+    void menu() {
+        int choice, rollNumber;
+        char division;
+        do {
+            cout << "\nEnter your choice:\n1. Display\n2. Add Record\n3. Search\n4. Modify\n5. Delete\n6. Exit\n";
+            cin >> choice;
+            switch (choice) {
+                case 1:
+                    displayDatabase();
+                    break;
+                case 2:
+                    addRecord();
+                    break;
+                case 3:
+                    cout << "Enter Roll Number to be searched: ";
+                    cin >> rollNumber;
+                    cout << "Enter Division to be searched: ";
+                    cin >> division;
+                    if (searchRecord(rollNumber, division) == 0) {
+                        cout << "Record Not Found" << endl;
+                    }
+                    break;
+                case 4:
+                    cout << "Enter Roll Number to be modified: ";
+                    cin >> rollNumber;
+                    cout << "Enter Division to be modified: ";
+                    cin >> division;
+                    if (searchRecord(rollNumber, division)==0) {
+                        cout << "\nRecord Not Found";
+                    } 
+                    else {
+                        modifyRecord(rollNumber,division);
+                    }
+                    break;
+                case 5:
+                    cout << "Enter Roll Number to be deleted: ";
+                    cin >> rollNumber;
+                    cout << "Enter Division to be deleted: ";
+                    cin >> division;
+                    if (searchRecord(rollNumber, division)==0) {
+                        cout << "\nRecord Not Found";
+                    } 
+                    else {
+                        deleteRecord(rollNumber);
+                    }
+                    break;
+            }
+        } while (choice != 6);
+    }
+};
+
+int main() {
+    StudentDatabase obj;
+    obj.menu();
+    return 0;
+}
